@@ -55,16 +55,16 @@ func (r *redisRepository) Find(code string) (*shortener.Redirect, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "repository.Redirect.Find")
 	}
-	redirect.Slug = data["code"]
+	redirect.Code = data["code"]
 	redirect.URL = data["url"]
 	redirect.CreatedAt = createdAt
 	return redirect, nil
 }
 
 func (r *redisRepository) Store(redirect *shortener.Redirect) error {
-	key := r.generateKey(redirect.Slug)
+	key := r.generateKey(redirect.Code)
 	data := map[string]interface{}{
-		"code":       redirect.Slug,
+		"code":       redirect.Code,
 		"url":        redirect.URL,
 		"created_at": redirect.CreatedAt,
 	}

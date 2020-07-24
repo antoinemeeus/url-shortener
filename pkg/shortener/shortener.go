@@ -33,7 +33,7 @@ func (r *redirectService) Store(redirect *Redirect) error {
 	if err := validate.Validate(redirect); err != nil {
 		return errs.Wrap(ErrRedirectInvalid, fmt.Sprintf("service.Redirect.Store: %s",err.Error()))
 	}
-	redirect.Slug = shortid.MustGenerate()
+	redirect.Code = shortid.MustGenerate()
 	redirect.CreatedAt = time.Now().UTC().Unix()
 	return r.redirectRepo.Store(redirect)
 }

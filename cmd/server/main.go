@@ -27,7 +27,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	r.Get("/{slug}", handler.Get)
+	r.Get("/{code}", handler.Get)
 	r.Post("/", handler.Post)
 
 	errs := make(chan error, 2)

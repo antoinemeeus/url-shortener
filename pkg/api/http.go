@@ -42,7 +42,7 @@ func (h *handler) serializer(contentType string) shortener.RedirectSerializer {
 }
 
 func (h *handler) Get(w http.ResponseWriter, r *http.Request) {
-	code := chi.URLParam(r, "slug")
+	code := chi.URLParam(r, "code")
 	redirect, err := h.redirectService.Find(code)
 	if err != nil {
 		if errors.Cause(err) == shortener.ErrRedirectNotFound {
