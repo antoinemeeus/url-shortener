@@ -15,6 +15,7 @@ import (
 type RedirectHandler interface {
 	Get(http.ResponseWriter, *http.Request)
 	Post(http.ResponseWriter, *http.Request)
+	Update(http.ResponseWriter, *http.Request)
 }
 
 type handler struct {
@@ -71,6 +72,43 @@ func (h *handler) Post(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Cause(err) == shortener.ErrRedirectInvalid {
 			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadRequest), err.Error()), http.StatusBadRequest)
+			return
+		}
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	responseBody, err := h.serializer(contentType).Encode(redirect)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	setupResponse(w, contentType, responseBody, http.StatusCreated)
+}
+
+func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
+	contentType := r.Header.Get("Content-Type")
+	requestBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	redirect, err := h.serializer(contentType).Decode(requestBody)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	err = h.redirectService.Update(redirect)
+	if err != nil {
+		if errors.Cause(err) == shortener.ErrRedirectInvalid {
+			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadRequest), err.Error()), http.StatusBadRequest)
+			return
+		}
+		if errors.Cause(err) == shortener.ErrRedirectNotFound {
+			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusNotFound), err.Error()), http.StatusNotFound)
+			return
+		}
+		if errors.Cause(err) == shortener.ErrAlreadyExist {
+			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusForbidden), err.Error()), http.StatusForbidden)
 			return
 		}
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

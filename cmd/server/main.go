@@ -29,6 +29,7 @@ func main() {
 
 	r.Get("/{code}", handler.Get)
 	r.Post("/", handler.Post)
+	r.Put("/", handler.Update)
 
 	errs := make(chan error, 2)
 	go func() {

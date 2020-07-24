@@ -2,5 +2,6 @@ package shortener
 
 type RedirectService interface {
 	Find(code string) (*Redirect, error)
-	Store(redirect *Redirect) error
+	Store(redirectReq *Redirect) error
+	Update(redirectReq *Redirect) error
 }
