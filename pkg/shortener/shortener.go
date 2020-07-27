@@ -11,25 +11,31 @@ import (
 )
 
 var (
+	// ErrRedirectNotFound is returned when a redirect resource is not found
 	ErrRedirectNotFound = errors.New("redirect Not Found")
-	ErrRedirectInvalid  = errors.New("redirect Invalid")
-	ErrAlreadyExist     = errors.New("code already exist")
+	// ErrRedirectInvalid is returned when a redirect request is invalid. Used for when validation fails.
+	ErrRedirectInvalid = errors.New("redirect Invalid")
+	// ErrAlreadyExist is returned when there is a code is already in use and cannot be saved.
+	ErrAlreadyExist    = errors.New("code already exist")
 )
 
 type redirectService struct {
 	redirectRepo RedirectRepository
 }
 
+// NewRedirectService returns a new instance of the redirectService.
 func NewRedirectService(redirectRepo RedirectRepository) RedirectService {
 	return &redirectService{
 		redirectRepo,
 	}
 }
 
+// Find returns a redirect resource via the repository interface
 func (r *redirectService) Find(code string) (*Redirect, error) {
 	return r.redirectRepo.Find(code)
 }
 
+// Store validates a redirect creation request and saves it via the repository interface.
 func (r *redirectService) Store(redirect *Redirect) error {
 	if err := validate.Validate(redirect); err != nil {
 		return errs.Wrap(ErrRedirectInvalid, fmt.Sprintf("service.Redirect.Store Validation Error: %s", err.Error()))
@@ -39,6 +45,7 @@ func (r *redirectService) Store(redirect *Redirect) error {
 	return r.redirectRepo.Store(redirect)
 }
 
+// Update validates a redirect update request, check if the new code doesn't already exist in database and saves it via the repository interface.
 func (r *redirectService) Update(redirect *Redirect) error {
 	if err := validate.Validate(redirect); err != nil {
 		return errs.Wrap(ErrRedirectInvalid, fmt.Sprintf("service.Redirect.Store Validation Error: %s", err.Error()))

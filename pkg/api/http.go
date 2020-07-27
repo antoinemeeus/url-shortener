@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// RedirectHandler interface that defines the http controller api methods
 type RedirectHandler interface {
 	Get(http.ResponseWriter, *http.Request)
 	Post(http.ResponseWriter, *http.Request)
@@ -22,6 +23,7 @@ type handler struct {
 	redirectService shortener.RedirectService
 }
 
+// NewHandler creates a new instance of the handler containing the redirectService.
 func NewHandler(redirectService shortener.RedirectService) RedirectHandler {
 	return &handler{redirectService: redirectService}
 }
@@ -42,6 +44,7 @@ func (h *handler) serializer(contentType string) shortener.RedirectSerializer {
 	return &js.Redirect{}
 }
 
+// Get controller action for GET requests. Returns the corresponding url for a existing code.
 func (h *handler) Get(w http.ResponseWriter, r *http.Request) {
 	code := chi.URLParam(r, "code")
 	redirect, err := h.redirectService.Find(code)
@@ -56,6 +59,7 @@ func (h *handler) Get(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redirect.URL, http.StatusMovedPermanently)
 }
 
+// Post controller action for POST requests. Saves a new url and return its corresponding code.
 func (h *handler) Post(w http.ResponseWriter, r *http.Request) {
 	contentType := r.Header.Get("Content-Type")
 	requestBody, err := ioutil.ReadAll(r.Body)
@@ -85,6 +89,7 @@ func (h *handler) Post(w http.ResponseWriter, r *http.Request) {
 	setupResponse(w, contentType, responseBody, http.StatusCreated)
 }
 
+// Update controller action for PUT requests. Updates the corresponding code to a new personalized code.
 func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 	contentType := r.Header.Get("Content-Type")
 	requestBody, err := ioutil.ReadAll(r.Body)

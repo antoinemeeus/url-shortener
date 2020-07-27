@@ -27,6 +27,7 @@ func newRedisClient(redisURL string) (*redis.Client, error) {
 	return client, nil
 }
 
+// NewRedisRepository returns a new instance of the Redis repository.
 func NewRedisRepository(redisURL string) (shortener.RedirectRepository, error) {
 	repo := &redisRepository{}
 	client, err := newRedisClient(redisURL)
@@ -41,6 +42,7 @@ func (r *redisRepository) generateKey(code string) string {
 	return fmt.Sprintf("redirect:%s", code)
 }
 
+// Find finds the corresponding url for the code provided and construct the shortener.Redirect object from saved information.
 func (r *redisRepository) Find(code string) (*shortener.Redirect, error) {
 	redirect := &shortener.Redirect{}
 	key := r.generateKey(code)
@@ -61,6 +63,7 @@ func (r *redisRepository) Find(code string) (*shortener.Redirect, error) {
 	return redirect, nil
 }
 
+// Store stores or update a new code and url to Redis from the shortener.Redirect object.
 func (r *redisRepository) Store(redirect *shortener.Redirect) error {
 	key := r.generateKey(redirect.Code)
 	data := map[string]interface{}{
