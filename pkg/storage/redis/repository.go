@@ -1,9 +1,9 @@
 package redis
 
-
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/antoinemeeus/url-shortener/pkg/shortener"
 	"github.com/go-redis/redis"
@@ -42,7 +42,7 @@ func (r *redisRepository) generateKey(code string) string {
 	return fmt.Sprintf("redirect:%s", code)
 }
 
-// Find finds the corresponding url for the code provided and construct the shortener.Redirect object from saved information.
+// Find finds the corresponding URL for the code provided and construct the shortener.Redirect object from saved information.
 func (r *redisRepository) Find(code string) (*shortener.Redirect, error) {
 	redirect := &shortener.Redirect{}
 	key := r.generateKey(code)
@@ -59,21 +59,36 @@ func (r *redisRepository) Find(code string) (*shortener.Redirect, error) {
 	}
 	redirect.Code = data["code"]
 	redirect.URL = data["url"]
-	redirect.CreatedAt = createdAt
+	redirect.CreatedAt = time.Unix(createdAt, 0)
 	return redirect, nil
 }
 
-// Store stores or update a new code and url to Redis from the shortener.Redirect object.
+// Store stores a new code and URL to Redis from the shortener.Redirect object.
 func (r *redisRepository) Store(redirect *shortener.Redirect) error {
 	key := r.generateKey(redirect.Code)
 	data := map[string]interface{}{
 		"code":       redirect.Code,
 		"url":        redirect.URL,
-		"created_at": redirect.CreatedAt,
+		"created_at": redirect.CreatedAt.Unix(),
 	}
 	_, err := r.client.HMSet(key, data).Result()
 	if err != nil {
 		return errors.Wrap(err, "repository.Redirect.Store")
 	}
 	return nil
+}
+
+// Delete delete a short.Redirect entry in Redis
+func (r *redisRepository) Delete(redirect *shortener.Redirect) error {
+	key := r.generateKey(redirect.Code)
+	err := r.client.Del(key).Err()
+	if err != nil {
+		return errors.Wrap(err, "repository.Redirect.Delete")
+	}
+	return nil
+}
+
+// Close Allow to close connection gracefully
+func (r *redisRepository) Close() error {
+	return r.client.Close()
 }

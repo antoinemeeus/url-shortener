@@ -16,7 +16,7 @@ var (
 	// ErrRedirectInvalid is returned when a redirect request is invalid. Used for when validation fails.
 	ErrRedirectInvalid = errors.New("redirect Invalid")
 	// ErrAlreadyExist is returned when there is a code is already in use and cannot be saved.
-	ErrAlreadyExist    = errors.New("code already exist")
+	ErrAlreadyExist = errors.New("code already exist")
 )
 
 type redirectService struct {
@@ -41,7 +41,7 @@ func (r *redirectService) Store(redirect *Redirect) error {
 		return errs.Wrap(ErrRedirectInvalid, fmt.Sprintf("service.Redirect.Store Validation Error: %s", err.Error()))
 	}
 	redirect.Code = shortid.MustGenerate()
-	redirect.CreatedAt = time.Now().UTC().Unix()
+	redirect.CreatedAt = time.Now().UTC()
 	return r.redirectRepo.Store(redirect)
 }
 
@@ -57,11 +57,13 @@ func (r *redirectService) Update(redirect *Redirect) error {
 
 	oldRedirect, err := r.redirectRepo.Find(redirect.Code)
 	if err != nil {
-		return errs.Wrap(ErrRedirectNotFound, fmt.Sprintf("service.Redirect.Update Error: %s", err.Error()))
+		return errs.Wrap(ErrRedirectNotFound, err.Error())
 	}
 
 	redirect.Code = redirect.NewCode
 	redirect.URL = oldRedirect.URL
-	redirect.CreatedAt = time.Now().UTC().Unix()
+	redirect.CreatedAt = time.Now().UTC()
+	_ = r.redirectRepo.Delete(oldRedirect) // Explicitly ignore error, but needs to be logged in the future to find memory leaks in repo
+
 	return r.redirectRepo.Store(redirect)
 }

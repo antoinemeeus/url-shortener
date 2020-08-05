@@ -6,10 +6,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/antoinemeeus/url-shortener/pkg/api"
 	"github.com/antoinemeeus/url-shortener/pkg/shortener"
+	ps "github.com/antoinemeeus/url-shortener/pkg/storage/postgresql"
 	sr "github.com/antoinemeeus/url-shortener/pkg/storage/redis"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -18,6 +20,7 @@ import (
 
 func main() {
 	repo := chooseRepo()
+	defer repo.Close()
 	service := shortener.NewRedirectService(repo)
 	handler := api.NewHandler(service)
 
@@ -69,15 +72,18 @@ func chooseRepo() shortener.RedirectRepository {
 			log.Fatal(err)
 		}
 		return repo
-		// case "mongo":
-		// 	mongoURL := os.Getenv("MONGO_URL")
-		// 	mongodb := os.Getenv("MONGO_DB")
-		// 	mongoTimeout, _ := strconv.Atoi(os.Getenv("MONGO_TIMEOUT"))
-		// 	repo, err := mr.NewMongoRepository(mongoURL, mongodb, mongoTimeout)
-		// 	if err != nil {
-		// 		log.Fatal(err)
-		// 	}
-		// 	return repo
+	case "postgres":
+		psqlHost := os.Getenv("POSTGRESQL_HOST")
+		psqlPort := os.Getenv("POSTGRESQL_PORT")
+		psqlUser := os.Getenv("POSTGRESQL_USER")
+		psqlPassword := os.Getenv("POSTGRESQL_PASSWORD")
+		psqldb := os.Getenv("POSTGRESQL_DB")
+		psqlTimeout, _ := strconv.Atoi(os.Getenv("POSTGRESQL_TIMEOUT"))
+		repo, err := ps.NewPostgresRepository(psqlHost, psqlPort, psqlUser, psqlPassword, psqldb, psqlTimeout)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return repo
 	}
 	return nil
 }
