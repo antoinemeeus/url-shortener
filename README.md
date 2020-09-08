@@ -61,7 +61,7 @@ Now you can make a get request to `localhost:8000/7TQ_AlDGR` to be redirected to
 As you can imagine, the url path `/7TQ_AlDGR` is not very friendly. That is why you can update this url code!
 
 You need to send a `PUT` request to `/update` with the previous `code` that you created earlier and ask for a `new_code` that you define yourself!
-Careful, the new URL should be less than **20 characters** long,  if not it should not be called a short url right?!
+Careful, the new URL should be more than **3 characters** and less than **20 characters** long,  if not it should not be called a short url right?!
 
 ```bash
 curl --request PUT \
