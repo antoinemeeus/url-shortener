@@ -104,21 +104,25 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 	err = h.redirectService.Update(redirect)
 	if err != nil {
-		if errors.Cause(err) == shortener.ErrRedirectInvalid {
+		switch errors.Cause(err) {
+		case shortener.ErrRedirectInvalid:
 			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadRequest), err.Error()), http.StatusBadRequest)
-			return
-		}
-		if errors.Cause(err) == shortener.ErrRedirectNotFound {
+
+		case shortener.ErrNewCodeEmpty:
+			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadRequest), err.Error()), http.StatusBadRequest)
+
+		case shortener.ErrRedirectNotFound:
 			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusNotFound), err.Error()), http.StatusNotFound)
-			return
-		}
-		if errors.Cause(err) == shortener.ErrAlreadyExist {
+
+		case shortener.ErrAlreadyExist:
 			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusForbidden), err.Error()), http.StatusForbidden)
-			return
+
+		default:
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
 	responseBody, err := h.serializer(contentType).Encode(redirect)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
