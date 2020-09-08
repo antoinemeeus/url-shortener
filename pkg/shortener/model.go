@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// gorm.Model definition
+// Model gorm.Model definition
 type Model struct {
 	ID        uint      `gorm:"primary_key"`
 	CreatedAt time.Time `json:"created_at"`

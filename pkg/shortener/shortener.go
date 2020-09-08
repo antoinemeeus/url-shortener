@@ -32,7 +32,11 @@ func NewRedirectService(redirectRepo RedirectRepository) RedirectService {
 
 // Find returns a redirect resource via the repository interface
 func (r *redirectService) Find(code string) (*Redirect, error) {
-	return r.redirectRepo.Find(code)
+	redirect, err := r.redirectRepo.Find(code)
+	if err != nil {
+		return nil, errs.Wrap(ErrRedirectNotFound, err.Error())
+	}
+	return redirect, nil
 }
 
 // Store validates a redirect creation request and saves it via the repository interface.
