@@ -107,16 +107,16 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 		switch errors.Cause(err) {
 		case shortener.ErrRedirectInvalid:
 			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadRequest), err.Error()), http.StatusBadRequest)
-			break
+
 		case shortener.ErrNewCodeEmpty:
 			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadRequest), err.Error()), http.StatusBadRequest)
-			break
+
 		case shortener.ErrRedirectNotFound:
 			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusNotFound), err.Error()), http.StatusNotFound)
-			break
+
 		case shortener.ErrAlreadyExist:
 			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusForbidden), err.Error()), http.StatusForbidden)
-			break
+
 		default:
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
