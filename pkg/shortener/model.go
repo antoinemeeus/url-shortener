@@ -4,12 +4,12 @@ import (
 	"time"
 )
 
-// gorm.Model definition
+// Model gorm.Model definition
 type Model struct {
 	ID        uint      `gorm:"primary_key"`
 	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time
-	DeletedAt *time.Time
+	UpdatedAt time.Time `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 // Redirect is the object model that is used for data transfer
