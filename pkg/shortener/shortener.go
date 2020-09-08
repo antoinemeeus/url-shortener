@@ -17,6 +17,8 @@ var (
 	ErrRedirectInvalid = errors.New("redirect Invalid")
 	// ErrAlreadyExist is returned when there is a code is already in use and cannot be saved.
 	ErrAlreadyExist = errors.New("code already exist")
+	// ErrNewCodeEmpty is returned when the newCode provided is empty.
+	ErrNewCodeEmpty = errors.New("new_code is empty")
 )
 
 type redirectService struct {
@@ -51,6 +53,10 @@ func (r *redirectService) Store(redirect *Redirect) error {
 
 // Update validates a redirect update request, check if the new code doesn't already exist in database and saves it via the repository interface.
 func (r *redirectService) Update(redirect *Redirect) error {
+	if redirect.NewCode == "" {
+		return errs.Wrap(ErrNewCodeEmpty, "service.Redirect.Store")
+	}
+
 	if err := validate.Validate(redirect); err != nil {
 		return errs.Wrap(ErrRedirectInvalid, fmt.Sprintf("service.Redirect.Store Validation Error: %s", err.Error()))
 	}
