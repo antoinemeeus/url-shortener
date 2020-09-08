@@ -6,9 +6,9 @@ import (
 
 // Model gorm.Model definition
 type Model struct {
-	ID        uint      `gorm:"primary_key"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint       `gorm:"primary_key"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 	DeletedAt *time.Time `json:"deleted_at"`
 }
 
@@ -16,6 +16,6 @@ type Model struct {
 type Redirect struct {
 	Model
 	Code    string `json:"code" gorm:"type:varchar(100);unique_index"`
-	NewCode string `json:"new_code" gorm:"type:varchar(100)" validate:"format=alnum & gte=0 & lte=15 | empty=true"`
+	NewCode string `json:"new_code" gorm:"type:varchar(100)" validate:"empty=true | format=alnum & gte=0 & lte=20"`
 	URL     string `json:"url" validate:"format=url & empty=false | empty=true"`
 }

@@ -31,8 +31,8 @@ func main() {
 	r.Use(middleware.Recoverer)
 
 	r.Get("/{code}", handler.Get)
-	r.Post("/", handler.Post)
-	r.Put("/", handler.Update)
+	r.Post("/create", handler.Post)
+	r.Put("/update", handler.Update)
 
 	errs := make(chan error, 2)
 	go func() {
