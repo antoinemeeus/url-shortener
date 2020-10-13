@@ -11,6 +11,7 @@ import (
 
 	"github.com/antoinemeeus/url-shortener/pkg/api"
 	"github.com/antoinemeeus/url-shortener/pkg/shortener"
+	ms "github.com/antoinemeeus/url-shortener/pkg/storage/mysql"
 	ps "github.com/antoinemeeus/url-shortener/pkg/storage/postgresql"
 	sr "github.com/antoinemeeus/url-shortener/pkg/storage/redis"
 	"github.com/go-chi/chi"
@@ -47,8 +48,7 @@ func main() {
 		errs <- fmt.Errorf("%s", <-c)
 	}()
 
-	fmt.Printf("Terminated %s", <-errs)
-
+	fmt.Printf("Terminated by %s", <-errs)
 }
 
 func httpPort() string {
@@ -64,6 +64,7 @@ func chooseRepo() shortener.RedirectRepository {
 	if err != nil {
 		log.Fatal(err)
 	}
+	timeout, _ := strconv.Atoi(os.Getenv("DB_TIMEOUT"))
 	switch os.Getenv("DB_ENGINE") {
 	case "redis":
 		redisURL := os.Getenv("REDIS_URL")
@@ -78,12 +79,23 @@ func chooseRepo() shortener.RedirectRepository {
 		psqlUser := os.Getenv("POSTGRESQL_USER")
 		psqlPassword := os.Getenv("POSTGRESQL_PASSWORD")
 		psqldb := os.Getenv("POSTGRESQL_DB")
-		psqlTimeout, _ := strconv.Atoi(os.Getenv("POSTGRESQL_TIMEOUT"))
-		repo, err := ps.NewPostgresRepository(psqlHost, psqlPort, psqlUser, psqlPassword, psqldb, psqlTimeout)
+		repo, err := ps.NewPostgresRepository(psqlHost, psqlPort, psqlUser, psqlPassword, psqldb, timeout)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return repo
+	case "mysql":
+		mysqlHost := os.Getenv("MYSQL_HOST")
+		mysqlPort := os.Getenv("MYSQL_PORT")
+		mysqlUser := os.Getenv("MYSQL_USER")
+		mysqlPassword := os.Getenv("MYSQL_PASSWORD")
+		mysqldb := os.Getenv("MYSQL_DB")
+		repo, err := ms.NewMySQLRepository(mysqlHost, mysqlPort, mysqlUser, mysqlPassword, mysqldb, timeout)
 		if err != nil {
 			log.Fatal(err)
 		}
 		return repo
 	}
+
 	return nil
 }

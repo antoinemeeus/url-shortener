@@ -12,7 +12,7 @@ help ::
 
 start :: ## Run service
 	@echo "  > Starting service"
-	@docker-compose up -d
+	@docker-compose up -d --build
 	@go run cmd/server/main.go
 
 dep: ## Get the dependencies
@@ -33,6 +33,11 @@ test-coverage: ## Run tests with coverage
 
 build: dep ## Build the binary file
 	@go build -i -o build/server $(PKG)/cmd/server
+
+build-arm64: ## Build the binary file
+	GOARCH=arm64 \
+	GOOS=linux \
+	go build -i -o build/server_arm64 $(PKG)/cmd/server
 
 clean: ## Remove previous build
 	@rm -f ./build/server
