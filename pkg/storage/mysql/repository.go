@@ -23,10 +23,14 @@ func NewMySQLRepository(host string, port string, user string, password string, 
 	if err != nil {
 		return nil, errs.Wrap(err, "repository.NewMySQLRepository")
 	}
-	timeoutContext, _ := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+
+	timeoutContext, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
+
 	db.WithContext(timeoutContext)
-	db.AutoMigrate(&shortener.Redirect{})
+	_ = db.AutoMigrate(&shortener.Redirect{})
 	repo.database = db
+
 	return repo, nil
 }
 
@@ -37,16 +41,27 @@ func (r *sqlRepository) Find(code string) (*shortener.Redirect, error) {
 	if err != nil {
 		return nil, errs.Wrap(err, "repository.Redirect.Find")
 	}
+
 	return sr, nil
 }
 
 // Store stores or update a new code and URL to MySQL via a ORM from the shortener.Redirect object.
 func (r *sqlRepository) Store(redirect *shortener.Redirect) error {
 	var err error
-	err = r.database.Create(redirect).Error
+
+	err = r.database.First(&shortener.Redirect{},redirect.ID).Error
+	if err != nil {
+		err = r.database.Create(redirect).Error
+		if err != nil {
+			return errs.Wrap(err, "repository.Redirect.Store")
+		}
+		return nil
+	}
+	err = r.database.Model(redirect).Update("code",redirect.Code).Error
 	if err != nil {
 		return errs.Wrap(err, "repository.Redirect.Store")
 	}
+
 	return nil
 }
 
@@ -56,11 +71,13 @@ func (r *sqlRepository) Delete(redirect *shortener.Redirect) error {
 	if err != nil {
 		return errs.Wrap(err, "repository.Redirect.Delete")
 	}
+
 	return nil
 }
 
 // Close allow to close database connection gracefully
 func (r *sqlRepository) Close() error {
 	db, _ := r.database.DB()
+
 	return db.Close()
 }

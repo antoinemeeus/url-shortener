@@ -20,7 +20,6 @@ require (
 	golang.org/x/sys v0.0.0-20200602225109-6fdc65e7d980 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
-	gopkg.in/dealancer/validate.v2 v2.0.0-20191007140827-2f5082b2f7fa
 	gorm.io/driver/mysql v1.0.2
 	gorm.io/driver/postgres v1.0.2
 	gorm.io/gorm v1.20.2

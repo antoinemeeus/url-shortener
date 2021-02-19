@@ -33,7 +33,7 @@ func main() {
 
 	r.Get("/{code}", handler.Get)
 	r.Post("/create", handler.Post)
-	r.Put("/update", handler.Update)
+	r.Patch("/update", handler.Update)
 
 	errs := make(chan error, 2)
 	go func() {
@@ -56,6 +56,7 @@ func httpPort() string {
 	if os.Getenv("PORT") != "" {
 		port = os.Getenv("PORT")
 	}
+
 	return fmt.Sprintf(":%s", port)
 }
 
@@ -78,8 +79,8 @@ func chooseRepo() shortener.RedirectRepository {
 		psqlPort := os.Getenv("POSTGRESQL_PORT")
 		psqlUser := os.Getenv("POSTGRESQL_USER")
 		psqlPassword := os.Getenv("POSTGRESQL_PASSWORD")
-		psqldb := os.Getenv("POSTGRESQL_DB")
-		repo, err := ps.NewPostgresRepository(psqlHost, psqlPort, psqlUser, psqlPassword, psqldb, timeout)
+		psqlDB := os.Getenv("POSTGRESQL_DB")
+		repo, err := ps.NewPostgresRepository(psqlHost, psqlPort, psqlUser, psqlPassword, psqlDB, timeout)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -89,8 +90,8 @@ func chooseRepo() shortener.RedirectRepository {
 		mysqlPort := os.Getenv("MYSQL_PORT")
 		mysqlUser := os.Getenv("MYSQL_USER")
 		mysqlPassword := os.Getenv("MYSQL_PASSWORD")
-		mysqldb := os.Getenv("MYSQL_DB")
-		repo, err := ms.NewMySQLRepository(mysqlHost, mysqlPort, mysqlUser, mysqlPassword, mysqldb, timeout)
+		mysqlDB := os.Getenv("MYSQL_DB")
+		repo, err := ms.NewMySQLRepository(mysqlHost, mysqlPort, mysqlUser, mysqlPassword, mysqlDB, timeout)
 		if err != nil {
 			log.Fatal(err)
 		}
