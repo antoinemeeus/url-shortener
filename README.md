@@ -1,6 +1,6 @@
 # Url-Shortener
 
-An URL shortener service (basically a glorified hashmap of urls)  written in Golang.
+A URL shortener service (basically a glorified hashmap of urls)  written in Golang.
 
 ## Requirement
 
@@ -8,10 +8,10 @@ Go version: 1.14
 
 ## Start App locally
 
-The URL shortenenr can use [Redis](https://redis.io/) or [Postgres](https://www.postgresql.org/) as database.
+The URL shortener can use [Redis](https://redis.io/) or [Postgres](https://www.postgresql.org/) as database.
 
 You can choose between Redis or Postgres by modifying the `DB_ENGINE` variable in the `.env` file.
-By default Postgres is used: `DB_ENGINE=postgres`
+By default, Postgres is used: `DB_ENGINE=postgres`
 
 See `docker-compose.yaml` definition for running and configuring databases images locally.
 
@@ -87,7 +87,7 @@ The request will respond with the following json:
 }
 ```
 
-And now you replaced the new short URL `/7TQ_AlDGR` by customized short URL `/MyNewAwsomeURL`!
+You now have replaced the new short URL `/7TQ_AlDGR` by your customized short URL `/MyNewAwsomeURL`!
 
 Try it out at `localhost:8000/MyNewAwsomeURL`, it should redirect you to `https://www.google.com` .
 

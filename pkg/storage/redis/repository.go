@@ -24,6 +24,7 @@ func newRedisClient(redisURL string) (*redis.Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return client, nil
 }
 
@@ -35,6 +36,7 @@ func NewRedisRepository(redisURL string) (shortener.RedirectRepository, error) {
 		return nil, errors.Wrap(err, "repository.NewRedisRepository")
 	}
 	repo.client = client
+
 	return repo, nil
 }
 
@@ -75,6 +77,7 @@ func (r *redisRepository) Store(redirect *shortener.Redirect) error {
 	if err != nil {
 		return errors.Wrap(err, "repository.Redirect.Store")
 	}
+
 	return nil
 }
 
@@ -85,6 +88,7 @@ func (r *redisRepository) Delete(redirect *shortener.Redirect) error {
 	if err != nil {
 		return errors.Wrap(err, "repository.Redirect.Delete")
 	}
+
 	return nil
 }
 
