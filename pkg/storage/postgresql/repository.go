@@ -24,9 +24,11 @@ func NewPostgresRepository(host string, port string, user string, password strin
 	if err != nil {
 		return nil, errs.Wrap(err, "repository.NewPostgresRepository")
 	}
-	timeoutContext, _ := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	timeoutContext, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
+
 	db.WithContext(timeoutContext)
-	db.AutoMigrate(&shortener.Redirect{})
+	_ = db.AutoMigrate(&shortener.Redirect{})
 	repo.database = db
 	return repo, nil
 }
@@ -45,7 +47,7 @@ func (r *postgresRepository) Find(code string) (*shortener.Redirect, error) {
 func (r *postgresRepository) Store(redirect *shortener.Redirect) error {
 	var err error
 
-	err = r.database.First(&shortener.Redirect{},redirect.ID).Error
+	err = r.database.First(&shortener.Redirect{}, redirect.ID).Error
 	if err != nil {
 		err = r.database.Create(redirect).Error
 		if err != nil {
@@ -53,7 +55,7 @@ func (r *postgresRepository) Store(redirect *shortener.Redirect) error {
 		}
 		return nil
 	}
-	err = r.database.Model(redirect).Update("code",redirect.Code).Error
+	err = r.database.Model(redirect).Update("code", redirect.Code).Error
 	if err != nil {
 		return errs.Wrap(err, "repository.Redirect.Store")
 	}
