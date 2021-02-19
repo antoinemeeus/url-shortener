@@ -8,6 +8,7 @@ import (
 
 	js "github.com/antoinemeeus/url-shortener/pkg/serializer/json"
 	"github.com/antoinemeeus/url-shortener/pkg/shortener"
+	"github.com/antoinemeeus/url-shortener/pkg/validator"
 	"github.com/go-chi/chi"
 	"github.com/pkg/errors"
 )
@@ -41,7 +42,12 @@ func (h *handler) serializer(contentType string) shortener.RedirectSerializer {
 	if contentType == "application/json" {
 		return &js.Redirect{}
 	}
+
 	return &js.Redirect{}
+}
+
+func (h *handler) validator() shortener.RedirectValidator {
+	return &validator.RedirectValidator{}
 }
 
 // Get controller action for GET requests. Returns the corresponding url for a existing code.
@@ -67,21 +73,28 @@ func (h *handler) Post(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	redirect, err := h.serializer(contentType).Decode(requestBody)
+	redirectInput, err := h.serializer(contentType).Decode(requestBody)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	err = h.redirectService.Store(redirect)
+
+	err = h.validator().ValidateURL(redirectInput)
 	if err != nil {
-		if errors.Cause(err) == shortener.ErrRedirectInvalid {
-			http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadRequest), err.Error()), http.StatusBadRequest)
-			return
-		}
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	redirect := shortener.Redirect{
+		URL:  redirectInput.URL,
+	}
+	err = h.redirectService.Store(&redirect)
+	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	responseBody, err := h.serializer(contentType).Encode(redirect)
+
+	responseBody, err := h.serializer(contentType).Encode(&redirect)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -97,12 +110,21 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	redirect, err := h.serializer(contentType).Decode(requestBody)
+	redirectInput, err := h.serializer(contentType).Decode(requestBody)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	err = h.redirectService.Update(redirect)
+	err = h.validator().ValidateNewCode(redirectInput)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	redirect := shortener.Redirect{
+		Code: redirectInput.Code,
+	}
+	err = h.redirectService.Update(&redirect, redirectInput.NewCode)
 	if err != nil {
 		switch errors.Cause(err) {
 		case shortener.ErrRedirectInvalid:
@@ -123,7 +145,7 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseBody, err := h.serializer(contentType).Encode(redirect)
+	responseBody, err := h.serializer(contentType).Encode(&redirect)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

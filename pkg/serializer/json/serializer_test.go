@@ -6,16 +6,17 @@ import (
 
 	"github.com/antoinemeeus/url-shortener/pkg/shortener"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 func TestRedirect_Decode(t *testing.T) {
 	re := &Redirect{}
-	jsn := `{"code":"firstCode","new_code":"newCode","url":"/newCode"}`
+	jsn := `{"code":"firstCode","new_code":"newCode123","url":"/newCode"}`
 	actual, err := re.Decode([]byte(jsn))
-	expected := &shortener.Redirect{
+	expected := &shortener.RedirectRequest{
 		Code:    "firstCode",
-		NewCode: "newCode",
 		URL:     "/newCode",
+		NewCode: "newCode123",
 	}
 
 	assert.NoError(t, err)
@@ -39,15 +40,14 @@ func TestRedirect_Encode(t *testing.T) {
 			ID:        1,
 			CreatedAt: time.Time{},
 			UpdatedAt: time.Time{},
-			DeletedAt: &time.Time{},
+			DeletedAt: gorm.DeletedAt{},
 		},
-		Code:    "firstCode",
-		NewCode: "newCode",
-		URL:     "/newCode",
+		Code: "firstCode",
+		URL:  "/newCode",
 	}
 
 	actual, err := re.Encode(payload)
-	expected := []byte(`{"ID":1,"created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z","deleted_at":"0001-01-01T00:00:00Z","code":"firstCode","new_code":"newCode","url":"/newCode"}`)
+	expected := []byte(`{"code":"firstCode"}`)
 
 	assert.NoError(t, err)
 	assert.Equal(t, expected, actual)

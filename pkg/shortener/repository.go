@@ -5,5 +5,5 @@ type RedirectRepository interface {
 	Find(code string) (*Redirect, error)
 	Store(redirect *Redirect) error
 	Delete(redirect *Redirect) error
-	Close() error
+	Close()
 }

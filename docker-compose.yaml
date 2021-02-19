@@ -12,3 +12,12 @@ services:
       POSTGRES_DB: urlshortener
     ports:
       - 5432:5432
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_USER: user
+      MYSQL_ROOT_PASSWORD: securePassword
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: urlshortener
+    ports:
+      - 3306:3306
