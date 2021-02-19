@@ -93,6 +93,6 @@ func (r *redisRepository) Delete(redirect *shortener.Redirect) error {
 }
 
 // Close Allow to close connection gracefully
-func (r *redisRepository) Close() error {
-	return r.client.Close()
+func (r *redisRepository) Close() {
+	_ = r.client.Close()
 }

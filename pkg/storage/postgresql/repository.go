@@ -73,7 +73,7 @@ func (r *postgresRepository) Delete(redirect *shortener.Redirect) error {
 }
 
 // Close allow to close database connection gracefully
-func (r *postgresRepository) Close() error {
+func (r *postgresRepository) Close() {
 	db, _ := r.database.DB()
-	return db.Close()
+	_ = db.Close()
 }

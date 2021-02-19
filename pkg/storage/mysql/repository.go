@@ -49,7 +49,7 @@ func (r *sqlRepository) Find(code string) (*shortener.Redirect, error) {
 func (r *sqlRepository) Store(redirect *shortener.Redirect) error {
 	var err error
 
-	err = r.database.First(&shortener.Redirect{},redirect.ID).Error
+	err = r.database.First(&shortener.Redirect{}, redirect.ID).Error
 	if err != nil {
 		err = r.database.Create(redirect).Error
 		if err != nil {
@@ -57,7 +57,7 @@ func (r *sqlRepository) Store(redirect *shortener.Redirect) error {
 		}
 		return nil
 	}
-	err = r.database.Model(redirect).Update("code",redirect.Code).Error
+	err = r.database.Model(redirect).Update("code", redirect.Code).Error
 	if err != nil {
 		return errs.Wrap(err, "repository.Redirect.Store")
 	}
@@ -76,8 +76,7 @@ func (r *sqlRepository) Delete(redirect *shortener.Redirect) error {
 }
 
 // Close allow to close database connection gracefully
-func (r *sqlRepository) Close() error {
+func (r *sqlRepository) Close() {
 	db, _ := r.database.DB()
-
-	return db.Close()
+	_ = db.Close()
 }
