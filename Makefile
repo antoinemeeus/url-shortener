@@ -18,6 +18,11 @@ start :: ## Run service
 dep: ## Get the dependencies
 	@go mod download
 
+mod:
+	# This make rule requires Go 1.11+
+	GO111MODULE=on go mod tidy
+	GO111MODULE=on go mod vendor
+
 lint: ## Lint Golang files
 	@golangci-lint run ./...
 

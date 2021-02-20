@@ -65,7 +65,5 @@ func (r *redirectService) Update(redirect *Redirect, newCode string) error {
 	redirect.URL = existingRedirect.URL
 	redirect.Code = newCode
 
-	//_ = r.redirectRepo.Delete(existingRedirect) // Explicitly ignore error, but needs to be logged in the future to find memory leaks in repo
-
 	return r.redirectRepo.Store(redirect)
 }

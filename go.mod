@@ -3,14 +3,12 @@ module github.com/antoinemeeus/url-shortener
 go 1.15
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/go-cmp v0.5.2 // indirect
-	github.com/jinzhu/gorm v1.9.16 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/kr/text v0.2.0 // indirect
-	github.com/lib/pq v1.8.0
+	github.com/lib/pq v1.8.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/pkg/errors v0.9.1

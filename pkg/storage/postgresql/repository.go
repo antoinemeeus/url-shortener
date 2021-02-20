@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/antoinemeeus/url-shortener/pkg/shortener"
-	_ "github.com/lib/pq"
 	errs "github.com/pkg/errors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
